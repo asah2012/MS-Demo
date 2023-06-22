@@ -7,6 +7,7 @@ import com.torq.inventory.entity.Inventory;
 import com.torq.inventory.exception.ResourceNotFoundException;
 import com.torq.inventory.mapper.AutoInventoryMapper;
 import com.torq.inventory.repository.InventoryRepository;
+import com.torq.inventory.services.FeignClient;
 import com.torq.inventory.services.InventoryService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -25,7 +26,8 @@ public class InventoryServiceImpl implements InventoryService {
 
     private InventoryRepository inventoryRepository;
     //private RestTemplate restTemplate;
-    private WebClient webClient;
+    //private WebClient webClient;
+    private FeignClient feignClient;
     @Override
     public InventoryDto createInventory(InventoryDto inventoryDto) {
         Inventory currentInventory = inventoryRepository.findByItemCode(inventoryDto.getItemCode());
@@ -82,7 +84,8 @@ public class InventoryServiceImpl implements InventoryService {
         //ResponseEntity<ItemDto> response = restTemplate.getForEntity("http://localhost:8080/item/item-code/"+inventoryDto.getItemCode(), ItemDto.class);
         //ItemDto itemDto = response.getBody();
 
-        ItemDto itemDto = webClient.get().uri("http://localhost:8080/item/item-code/"+inventoryDto.getItemCode()).retrieve().bodyToMono(ItemDto.class).block();
+        //ItemDto itemDto = webClient.get().uri("http://localhost:8080/item/item-code/"+inventoryDto.getItemCode()).retrieve().bodyToMono(ItemDto.class).block();
+        ItemDto itemDto = feignClient.getItemByItemCode(inventoryDto.getItemCode());
         APIClient apiClientResponse = new APIClient();
         apiClientResponse.setInventory(inventoryDto);
         apiClientResponse.setItem(itemDto);
