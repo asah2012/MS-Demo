@@ -12,6 +12,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.reactive.function.client.WebClient;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -23,7 +24,8 @@ import java.util.Optional;
 public class InventoryServiceImpl implements InventoryService {
 
     private InventoryRepository inventoryRepository;
-    private RestTemplate restTemplate;
+    //private RestTemplate restTemplate;
+    private WebClient webClient;
     @Override
     public InventoryDto createInventory(InventoryDto inventoryDto) {
         Inventory currentInventory = inventoryRepository.findByItemCode(inventoryDto.getItemCode());
@@ -77,8 +79,10 @@ public class InventoryServiceImpl implements InventoryService {
     @Override
     public APIClient getInventoryWithItemDetailsById(Long id){
         InventoryDto inventoryDto = getInventoryById(id);
-        ResponseEntity<ItemDto> response = restTemplate.getForEntity("http://localhost:8080/item/item-code/"+inventoryDto.getItemCode(), ItemDto.class);
-        ItemDto itemDto = response.getBody();
+        //ResponseEntity<ItemDto> response = restTemplate.getForEntity("http://localhost:8080/item/item-code/"+inventoryDto.getItemCode(), ItemDto.class);
+        //ItemDto itemDto = response.getBody();
+
+        ItemDto itemDto = webClient.get().uri("http://localhost:8080/item/item-code/"+inventoryDto.getItemCode()).retrieve().bodyToMono(ItemDto.class).block();
         APIClient apiClientResponse = new APIClient();
         apiClientResponse.setInventory(inventoryDto);
         apiClientResponse.setItem(itemDto);
